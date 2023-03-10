@@ -10,10 +10,17 @@ export class User {
   username: string;
 
   @Prop()
-  age: number;
+  email: string;
 
   @Prop()
-  email: string;
+  password: string;
 }
 
 export const UserSchema = SchemaFactory.createForClass(User);
+
+UserSchema.set('toJSON', {
+  transform: (doc, ret, opt) => {
+      delete ret.password;
+      return ret;
+  }
+});
