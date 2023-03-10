@@ -1,50 +1,33 @@
 import { Injectable, ConflictException, NotFoundException, UnauthorizedException } from '@nestjs/common';
 
-import { InjectModel } from '@nestjs/mongoose';
-import { Model } from 'mongoose';
-
-import { compare, hash } from 'bcrypt';
+import { JwtService } from '@nestjs/jwt';
 
 import { USER_NOT_FOUND, EMAIL_USER_CONFLICT, INVALID_CREDENTIALS } from '../../errors/errors.constants';
 
-import { User, UserDocument } from '../users/entities/user.entity';
-
 import { RegisterDto } from './dto/register-auth.dto';
 import { LoginDto } from './dto/login-auth.dto';
+import { UsersService } from '../users/users.service';
 
 @Injectable()
 export class AuthService {
-  constructor(@InjectModel(User.name) private userModel: Model<UserDocument>) { }
+  constructor(
+    private userService: UsersService,
+    private jwtService: JwtService) { }
 
   async register(registerDto: RegisterDto) {
-
-    const testUserByEmail = await this.userModel.find({ email: registerDto.email }).exec();
-    if (testUserByEmail.length > 0) {
-      throw new ConflictException(EMAIL_USER_CONFLICT)
-    }
-
-    const password = await hash(registerDto.password, 10);
-
-    const created = new this.userModel({
-      username: registerDto.username,
-      email: registerDto.email,
-      password
-    });
-
-    return created.save();
-
+    return this.userService.create(registerDto);
   }
 
   async login(loginDto: LoginDto) {
-    const user = await this.userModel.findOne({ email: loginDto.email }).exec();
-    if (!user) {
-      throw new NotFoundException(USER_NOT_FOUND);
-    }
+    const user = await this.userService.validateUser(loginDto.email, loginDto.password);
 
-    if (!(await compare(loginDto.password, user.password))) {
+    if (!user) {
       throw new UnauthorizedException(INVALID_CREDENTIALS);
     }
 
-
+    const payload = { username: user.username, sub: user.email };
+    return {
+      access_token: this.jwtService.sign(payload),
+    };
   }
 }
