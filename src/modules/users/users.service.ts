@@ -27,16 +27,6 @@ export class UsersService {
     return created.save();
   }
 
-  async validateUser(email: string, password: string){
-    const user = await this.findOne({ email });
-
-    if (await compare(password, user.password)) {
-      return user;
-    }
-
-    return null;
-  }
-
   async findAll(): Promise<User[]> {
     return this.userModel.find().exec();
   }
