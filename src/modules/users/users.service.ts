@@ -1,4 +1,4 @@
-import { Injectable, NotFoundException, ConflictException, UnauthorizedException} from '@nestjs/common';
+import { Injectable, NotFoundException, ConflictException, UnauthorizedException } from '@nestjs/common';
 import { hash, compare } from 'bcrypt';
 
 import { InjectModel } from '@nestjs/mongoose';
@@ -52,5 +52,6 @@ export class UsersService {
     if (!user) {
       throw new NotFoundException(USER_NOT_FOUND);
     }
+    return { removed: true };
   }
 }
