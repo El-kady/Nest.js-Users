@@ -23,8 +23,7 @@ export class UsersService {
 
     createUserDto.password = await hash(createUserDto.password, 10);
 
-    const created = new this.userModel(createUserDto);
-    return created.save();
+    return this.userModel.create(createUserDto);
   }
 
   async findAll(): Promise<User[]> {
@@ -48,10 +47,6 @@ export class UsersService {
   }
 
   async remove(id: string) {
-    const user = await this.userModel.findByIdAndRemove({ _id: id }).exec();
-    if (!user) {
-      throw new NotFoundException(USER_NOT_FOUND);
-    }
-    return { removed: true };
+    return this.userModel.deleteOne({ _id: id })
   }
 }

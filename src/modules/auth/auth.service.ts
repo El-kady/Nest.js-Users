@@ -1,9 +1,7 @@
 import { Injectable, ConflictException, NotFoundException, UnauthorizedException } from '@nestjs/common';
-import { hash, compare } from 'bcrypt';
+import { compare } from 'bcrypt';
 
 import { JwtService } from '@nestjs/jwt';
-
-import { USER_NOT_FOUND, EMAIL_USER_CONFLICT, INVALID_CREDENTIALS } from '../../errors/errors.constants';
 
 import { RegisterDto } from './dto/register-auth.dto';
 import { UsersService } from '../users/users.service';
